@@ -121,6 +121,8 @@
             }
             
             // Menggunakan onSnapshot untuk real-time update
+            // Catatan: orderBy('timestamp', 'desc') diizinkan di sini, tapi jika Anda ingin lebih aman 
+            // dari error index, Anda bisa menghapus orderBy dan melakukan sort di sisi client (JS).
             const q = query(collection(db, GUESTBOOK_COLLECTION_PATH), orderBy('timestamp', 'desc'));
             const ucapanList = document.getElementById('ucapan-list');
 
@@ -376,7 +378,7 @@
             <!-- Elemen Hero Utama (Akan dianimasikan oleh JS saat overlay hilang) -->
             <p class="text-xl font-elegant mb-3 tracking-widest text-gold-accent opacity-0" id="hero-title">We Are Getting Married</p>
             <h2 class="text-7xl md:text-9xl font-elegant font-bold mb-4 leading-tight opacity-0" id="hero-names">
-                DIO & DERA
+                DIO <span class="text-gold-accent">&</span> DERA
             </h2>
             <p class="text-xl md:text-2xl font-light mb-8 opacity-0" id="hero-date">
                 02 November 2025
@@ -674,21 +676,14 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
     </button>
     
-    <!-- Iframe Musik Latar (Hidden) - MEMASTIKAN NAMA FILE MUSIK SAMA -->
-    <iframe 
-        id="bgMusic" 
-        width="0" 
-        height="0" 
-        src="img/Timeline 1.mp3" 
-        frameborder="0" 
-        allow="autoplay; encrypted-media" 
-        allowfullscreen
-        style="display: none;">
-    </iframe>
+    <!-- AUDIO MUSIK LATAR (Perubahan 1: Ganti iframe ke <audio>) -->
+    <audio id="bgMusic" src="img/Timeline 1.mp3" loop preload="auto" style="display: none;"></audio>
+
 
 <script>
     // Global variables
-    const bgMusic = document.getElementById('bgMusic');
+    // Pastikan ini mereferensi elemen <audio> yang baru
+    const bgMusic = document.getElementById('bgMusic'); 
     const audioControlBtn = document.getElementById('audioControlBtn');
     const iconMute = document.getElementById('icon-mute');
     const iconUnmute = document.getElementById('icon-unmute');
@@ -754,13 +749,16 @@
 
     // --- LOGIC 2: Audio Control & Invitation Open (UPDATED) ---
     
+    // Perubahan 2: Memperbaiki fungsi unmuteMusic
     const unmuteMusic = () => {
-        bgMusic.src = 'img/Timeline 1.mp3'; // Memastikan nama file tidak berubah
-        
-        // Coba putar musik, tangani jika browser memblokir (autoplay policy)
-        bgMusic.onload = () => {
-            bgMusic.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        };
+        // Menggunakan method play() dari elemen Audio HTML5, yang diizinkan setelah interaksi pengguna
+        bgMusic.play().then(() => {
+            console.log("Music Play Succeeded.");
+        }).catch(error => {
+            console.error("Music Play Failed (Browser Policy - Pastikan ada interaksi pengguna):", error);
+            // Pada iOS/Safari, jika play() gagal, umumnya karena belum ada interaksi pengguna
+            // Tombol "Buka Undangan" seharusnya sudah menyelesaikan masalah ini.
+        });
 
         isMuted = false;
         iconMute.classList.add('hidden');
@@ -768,8 +766,9 @@
         console.log("Music Unmuted (Attempted to play audio).");
     }
 
+    // Perubahan 3: Memperbaiki fungsi muteMusic
     const muteMusic = () => {
-        bgMusic.src = "about:blank"; // Mematikan musik dengan memuat halaman kosong
+        bgMusic.pause(); // Menggunakan method pause() dari elemen Audio HTML5
         isMuted = true;
         iconMute.classList.remove('hidden');
         iconUnmute.classList.add('hidden');
@@ -809,7 +808,7 @@
     openInvitationBtn.addEventListener('click', (e) => {
         e.preventDefault();
         
-        // 1. Unmute music 
+        // 1. Unmute music (AKAN DIPUTAR SAAT INI)
         unmuteMusic(); 
         
         // 2. Hide opening screen with transition
