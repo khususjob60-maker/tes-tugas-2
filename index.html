@@ -27,6 +27,7 @@
 
         let db, auth, userId;
 
+        
         const initFirebase = async () => {
             try {
                 const app = initializeApp(firebaseConfig);
@@ -57,10 +58,20 @@
             }
         };
 
-        // --- FIREBASE FIRESTORE FUNCTIONS (RSVP & UCAPAN) ---
 
-        // Collection path for public data (Guestbook)
-        // /artifacts/{appId}/public/data/wedding_guests
+ const firebaseConfig = {
+  apiKey: "AIzaSyChyLARaL03l1bg4XA-AbnAni59vESTPss",
+  authDomain: "diaod-7b4bd.firebaseapp.com",
+  projectId: "diaod-7b4bd",
+  storageBucket: "diaod-7b4bd.firebasestorage.app",
+  messagingSenderId: "529755250173",
+  appId: "1:529755250173:web:eee59e2e695c484fb50d94",
+  measurementId: "G-JS4BVTK9JC"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
         const GUESTBOOK_COLLECTION_PATH = `artifacts/${appId}/public/data/wedding_guests`;
 
         /**
@@ -187,7 +198,7 @@
 
         /* Penggunaan Latar Belakang Hero Section (Parallax) */
         #hero-section {
-            background-image: url('img/Background.JPG'); 
+            background-image: url('img/Background copy.JPG'); 
             background-size: cover;
             background-position: center center;
             background-attachment: fixed; /* Efek Parallax (Bermasalah di iOS) */
